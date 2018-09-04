@@ -1,0 +1,54 @@
+{
+  "board": {
+    "padding": {
+      "x": 10,
+      "y": 10
+    },
+    "background": "ban_kaya_a.png",
+    "square": "masu_dot.png"
+  },
+  "piece": {
+    "name": {
+      "P": "歩", "+P": "と",
+      "L": "香", "+L": "杏",
+      "N": "桂", "+N": "圭",
+      "S": "銀", "+S": "全",
+      "G": "金",
+      "B": "角", "+B": "馬",
+      "R": "飛", "+R": "龍",
+      "K": "玉"
+    },
+    "image": {
+      "P": "Sfu.png",   "+P": "Sto.png",
+      "L": "Skyo.png",  "+L": "Snkyo.png",
+      "N": "Skei.png",  "+N": "Snkei.png",
+      "S": "Sgin.png",  "+S": "Sngin.png",
+      "G": "Skin.png",
+      "B": "Skaku.png", "+B": "Suma.png",
+      "R": "Shi.png",   "+R": "Sryu.png",
+      "K": "Sou.png",
+      "p": "Gfu.png",   "+p": "Gto.png",
+      "l": "Gkyo.png",  "+l": "Gnkyo.png",
+      "n": "Gkei.png",  "+n": "Gnkei.png",
+      "s": "Ggin.png",  "+s": "Gngin.png",
+      "g": "Gkin.png",
+      "b": "Gkaku.png", "+b": "Guma.png",
+      "r": "Ghi.png",   "+r": "Gryu.png",
+      "k": "Gou.png"
+    },
+    "promote": "成",
+    "drop": "打"
+  },
+  "axis": {
+    "file": [
+      "1", "2", "3", "4", "5", "6", "7", "8", "9"
+    ],
+    "rank": [
+      "一", "二", "三", "四", "五", "六", "七", "八", "九"
+    ]
+  },
+  "color": {
+    "black": "▲",
+    "white": "△"
+  }
+}
