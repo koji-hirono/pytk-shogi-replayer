@@ -20,7 +20,7 @@ $ main.py LOGFILE
 
 Screenshot
 ----------
-![main-window](https://koji-hirono.github.io/pytk-shogi-replayer/misc/screen1.png)
+![main-window](https://github.com/koji-hirono/pytk-shogi-replayer/blob/master/misc/screen1.png)
 
 
 License
