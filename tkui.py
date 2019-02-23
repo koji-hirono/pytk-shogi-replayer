@@ -23,7 +23,7 @@ class Square(tk.Frame):
         w = self.bg_img.width()
         h = self.bg_img.height()
         self.canvas = tk.Canvas(self, width=w, height=h)
-        self.canvas.create_image(0, 0, anchor='nw', image=self.bg_img)
+        self.back = self.canvas.create_image(0, 0, anchor='nw', image=self.bg_img)
         self.canvas.create_image(0, 0, anchor='nw', image=self.sq_img)
         self.canvas.grid(row=1, column=0)
         self.padx = theme.config['board']['padding']['x']
@@ -42,6 +42,21 @@ class Square(tk.Frame):
     def take(self, row, col):
         tag = '{},{}'.format(row, col)
         self.canvas.delete(tag)
+
+    def set_style(self, piece, row, col, fill='lightblue', stipple='gray50'):
+        img = piece['image']
+        x = self.padx + img.width() * col
+        y = self.pady + img.height() * row
+        tag = '{},{} style'.format(row, col)
+        r = self.canvas.create_rectangle(x, y, x + img.width(),
+                y + img.height(), tag=tag, fill=fill, stipple=stipple)
+        self.canvas.tag_lower(r)
+        self.canvas.tag_lower(self.back)
+
+    def clear_style(self, row, col):
+        tag = '{},{} style'.format(row, col)
+        self.canvas.delete(tag)
+
 
 class InHand(tk.Frame):
     def __init__(self, parent, theme):

@@ -12,10 +12,25 @@ import psn
 import mobakif
 import shogi
 
-def update(position, ui):
+def update(position, movelog, ui):
+    t = position.step - 1
+    lastmove = None
+    if t != -1:
+        lastmove = movelog.data[t]
     for i, row in enumerate(position.square):
         for j, t in enumerate(row):
             ui.position.square.take(i, j)
+            ui.position.square.clear_style(i, j)
+            if lastmove:
+                if lastmove.src:
+                    if lastmove.src.row == i and lastmove.src.col == j:
+                        ui.position.square.set_style(ui.piece_type['p'],
+                            lastmove.src.row, lastmove.src.col)
+                if lastmove.dst:
+                    if lastmove.dst.row == i and lastmove.dst.col == j:
+                        ui.position.square.set_style(ui.piece_type['p'],
+                            lastmove.dst.row, lastmove.dst.col,
+                            stipple='gray75')
             if t != '':
                 ui.position.square.put(ui.piece_type[t], i, j)
     for color, data in position.inhand.items():
@@ -43,7 +58,10 @@ if __name__ == '__main__':
     position = shogi.Position()
     movelog = shogi.Movelog()
 
-    s = 'lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b -'
+    if len(sys.argv) >= 3:
+        s = sys.argv[2]
+    else:
+        s = 'lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b -'
     position.load(sfen.decoder(s))
 
     if logfile.endswith('.usi'):
@@ -69,7 +87,7 @@ if __name__ == '__main__':
         ui.movelog.tree.selection_set(item)
         ui.movelog.tree.focus(item)
         ui.movelog.tree.see(item)
-        update(position, ui)
+        update(position, movelog, ui)
 
     def move_last():
         movelog.goto(position, len(movelog.data) - 1)
@@ -79,7 +97,7 @@ if __name__ == '__main__':
         ui.movelog.tree.selection_set(item)
         ui.movelog.tree.focus(item)
         ui.movelog.tree.see(item)
-        update(position, ui)
+        update(position, movelog, ui)
 
     def move_back():
         movelog.back(position, 1)
@@ -89,7 +107,7 @@ if __name__ == '__main__':
         ui.movelog.tree.selection_set(item)
         ui.movelog.tree.focus(item)
         ui.movelog.tree.see(item)
-        update(position, ui)
+        update(position, movelog, ui)
 
     def move_forward():
         movelog.forward(position, 1)
@@ -99,14 +117,14 @@ if __name__ == '__main__':
         ui.movelog.tree.selection_set(item)
         ui.movelog.tree.focus(item)
         ui.movelog.tree.see(item)
-        update(position, ui)
+        update(position, movelog, ui)
 
     def move_goto(event):
         sym = ui.movelog.tree.focus()
         step = ui.movelog.tree.index(sym)
         movelog.goto(position, step)
         ui.control.curr_v.set(step)
-        update(position, ui)
+        update(position, movelog, ui)
 
     ui.control.first.configure(command=move_first)
     ui.control.last.configure(command=move_last)
@@ -114,6 +132,6 @@ if __name__ == '__main__':
     ui.control.next1.configure(command=move_forward)
     ui.movelog.tree.bind('<ButtonRelease-1>', move_goto)
 
-    update(position, ui)
+    update(position, movelog, ui)
 
     ui.run()
