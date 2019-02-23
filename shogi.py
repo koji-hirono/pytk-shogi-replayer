@@ -54,6 +54,20 @@ class Position(object):
     def put_inhand(self, color, piece):
         self.inhand[color][piece.lstrip('+').upper()] += 1
 
+class Pos(object):
+
+    def __init__(self, file, rank):
+        self.file = int(file)
+        self.rank = int(rank)
+
+    @property
+    def row(self):
+        return self.rank - 1
+
+    @property
+    def col(self):
+        return 9 - self.file
+
 class Move(object):
 
     def __init__(self, color, dst, src=None, piece=None, promote=False):

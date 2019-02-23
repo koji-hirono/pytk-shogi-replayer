@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
+from shogi import Pos
 import copy
 import re
 
@@ -39,19 +40,6 @@ COLOR = {
     '▲': 'black',
     '△': 'white'
 }
-
-class Pos(object):
-    def __init__(self, file, rank):
-        self.file = int(file)
-        self.rank = int(rank)
-
-    @property
-    def row(self):
-        return self.rank - 1
-
-    @property
-    def col(self):
-        return 9 - self.file
 
 def decoder(f):
     prevdst = None
