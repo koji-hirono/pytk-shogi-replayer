@@ -12,7 +12,7 @@ class Position(object):
         self.inhand = {}
         for color in ['black', 'white']:
             self.inhand[color] = {}
-            for piece in 'PLNSGBR':
+            for piece in 'PLNSGBRK':
                 self.inhand[color][piece] = 0
         self.turn = None
         self.step = None
@@ -86,7 +86,7 @@ class Movelog(object):
     def load(self, parser):
         self.data = [None]
         for m in parser:
-            self.data.append(Move(*m))
+            self.data.append(m)
 
     def normalize(self, position):
         for m in self.data:

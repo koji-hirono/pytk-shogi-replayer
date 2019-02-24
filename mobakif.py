@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
-from shogi import Pos
+from shogi import Pos, Move
 import copy
 import re
 
@@ -45,7 +45,13 @@ def decoder(f):
     prevdst = None
     for line in f:
         if isinstance(line, bytes):
-            line = line.decode('utf-8')
+            try:
+                line = line.decode('utf-8')
+            except:
+                try:
+                    line = line.decode('shift_jis')
+                except:
+                    raise
         line = line.strip()
         m = re.match(r'\d+\.\s+(.+)', line)
         if not m:
@@ -75,5 +81,5 @@ def decoder(f):
             piece = PIECE[line[3]]
         # print('color = {}'.format(color))
         # print('piece = {}'.format(piece))
-        yield color, dst, src, piece, promote
+        yield Move(color, dst, src, piece, promote)
         prevdst = dst

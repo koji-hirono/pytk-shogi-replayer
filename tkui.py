@@ -74,6 +74,8 @@ class InHand(tk.Frame):
             'R': 0, 'B': 1, 'G': 2, 'S': 3, 'N': 4, 'L': 5, 'P': 6,
             'r': 6, 'b': 5, 'g': 4, 's': 3, 'n': 2, 'l': 1, 'p': 0
         }
+        if piece['name'] not in P_W:
+            return
         img = piece['image']
         x = 5
         y = (img.height() + 0) * P_W[piece['name']]

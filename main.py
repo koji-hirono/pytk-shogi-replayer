@@ -10,20 +10,27 @@ import theming
 import sfen
 import psn
 import mobakif
+import kif
 import shogi
 import replayer
 
 
 def load_file(movelog, position, s, logfile):
     position.load(sfen.decoder(s))
-    if logfile.endswith('.usi'):
+    if logfile.lower().endswith('.usi'):
         with open(logfile, 'r') as f:
             movelog.load(psn.decoder(f))
             movelog.normalize(position)
-    elif logfile.endswith('.kif'):
+    elif logfile.lower().endswith('.kif'):
+        fail = False
         with open(logfile, 'r') as f:
             movelog.load(mobakif.decoder(f))
-            movelog.normalize(position)
+            if len(movelog.data) < 2:
+                fail = True
+        if fail:
+            with open(logfile, 'r') as f:
+                movelog.load(kif.decoder(f))
+        movelog.normalize(position)
 
 if __name__ == '__main__':
     if len(sys.argv) >= 2:

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
-from shogi import Pos
+from shogi import Pos, Move
 
 RANKNUM = {
         'a': 1,
@@ -29,9 +29,9 @@ def decoder(f):
                 promote = True
             else:
                 promote = False
-            yield color[step & 1], dst, src, None, promote
+            yield Move(color[step & 1], dst, src, None, promote)
             step += 1
         elif line[0].isupper():
             dst = Pos(line[2], RANKNUM[line[3]])
-            yield color[step & 1], dst, None, line[0], None
+            yield Move(color[step & 1], dst, None, line[0], None)
             step += 1
