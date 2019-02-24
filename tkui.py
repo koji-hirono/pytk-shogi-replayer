@@ -6,10 +6,12 @@ try:
     import tkinter as tk
     import tkinter.font as tkfont
     import tkinter.ttk as ttk
+    from tkinter import filedialog
 except:
     import Tkinter as tk
     import tkFont as tkfont
     import ttk
+    import tkFileDialog as filedialog
 from PIL import ImageTk
 
 
@@ -137,6 +139,22 @@ class Movelog(tk.Frame):
                 s = 'Initial'
             self.tree.insert('', 'end', values=(i, s))
 
+    def clear(self):
+        items = self.tree.get_children()
+        self.tree.delete(*items)
+
+    def set_step(self, step):
+        items = self.tree.get_children()
+        if step < len(items):
+            item = items[step]
+            self.tree.selection_set(item)
+            self.tree.focus(item)
+            self.tree.see(item)
+
+    def get_step(self):
+        sym = self.tree.focus()
+        return self.tree.index(sym)
+
 class Control(tk.Frame):
     def __init__(self, parent, theme):
         tk.Frame.__init__(self, parent)
@@ -156,6 +174,22 @@ class Control(tk.Frame):
         self.last.grid(row=0, column=4)
         self.toggle.grid(row=0, column=5)
 
+class Menu(tk.Menu):
+    def __init__(self, parent):
+        tk.Menu.__init__(self, parent)
+        filemenu = tk.Menu(self, tearoff=0)
+        filemenu.add_command(label='Open', command=self.open_file)
+        filemenu.add_separator()
+        filemenu.add_command(label='Exit', command=parent.quit)
+        self.add_cascade(label='File', menu=filemenu)
+        self.command = {}
+
+    def open_file(self):
+        filename = filedialog.askopenfilename()
+        if filename:
+            if 'open_file' in self.command:
+                self.command['open_file'](filename)
+
 class UI(object):
     def __init__(self, theme):
         self.root = tk.Tk()
@@ -172,6 +206,8 @@ class UI(object):
         self.position.grid(row=0, column=0)
         self.movelog.grid(row=0, column=1, sticky='ns')
         self.control.grid(row=1, column=0)
+        self.menu = Menu(self.root)
+        self.root.config(menu=self.menu)
 
     def run(self):
         self.root.mainloop()
