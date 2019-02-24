@@ -8,7 +8,7 @@ import sys
 import tkui
 import theming
 import sfen
-import psn
+import usikif
 import mobakif
 import kif
 import shogi
@@ -19,7 +19,7 @@ def load_file(movelog, position, s, logfile):
     position.load(sfen.decoder(s))
     if logfile.lower().endswith('.usi'):
         with open(logfile, 'r') as f:
-            movelog.load(psn.decoder(f))
+            movelog.load(usikif.decoder(f))
             movelog.normalize(position)
     elif logfile.lower().endswith('.kif'):
         fail = False
