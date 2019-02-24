@@ -11,13 +11,18 @@ import sfen
 import usikif
 import mobakif
 import kif
+import psn
 import shogi
 import replayer
 
 
 def load_file(movelog, position, s, logfile):
     position.load(sfen.decoder(s))
-    if logfile.lower().endswith('.usi'):
+    if logfile.lower().endswith('.psn'):
+        with open(logfile, 'r') as f:
+            movelog.load(psn.decoder(f))
+            movelog.normalize(position)
+    elif logfile.lower().endswith('.usi'):
         with open(logfile, 'r') as f:
             movelog.load(usikif.decoder(f))
             movelog.normalize(position)

@@ -8,7 +8,7 @@ Requirements
 ------------
 * Python (2.7 or 3.6+)
 * tkinter
-* Kifu (KIF format)
+* Kifu (KIF, PSN, USI format)
 
 
 Usage
