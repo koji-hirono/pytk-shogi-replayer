@@ -1,8 +1,8 @@
 {
   "board": {
     "padding": {
-      "x": 10,
-      "y": 10
+      "x": 11,
+      "y": 11
     },
     "background": "ban_kaya_a.png",
     "square": "masu_dot.png"

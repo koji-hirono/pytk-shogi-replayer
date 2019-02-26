@@ -32,7 +32,18 @@ class Square(tk.Frame):
         self.pady = theme.config['board']['padding']['y']
         self.file = theme.config['axis']['file']
         self.rank = theme.config['axis']['rank']
-        # axis_w = (w - self.padx * 2) / len(self.file)
+        ax_frame = tk.Frame(self, padx=self.padx, pady=0)
+        ax_frame.grid(row=0, column=0, sticky='esnw')
+        for i, text in enumerate(reversed(self.file)):
+            ax = tk.Label(ax_frame, text=text)
+            ax.grid(row=0, column=i, sticky='esnw')
+            ax_frame.columnconfigure(i, weight=1)
+        ay_frame = tk.Frame(self, padx=0, pady=self.pady)
+        ay_frame.grid(row=1, column=1, sticky='esnw')
+        for i, text in enumerate(self.rank):
+            ay = tk.Label(ay_frame, text=text)
+            ay.grid(row=i, column=0, sticky='esnw')
+            ay_frame.rowconfigure(i, weight=1)
 
     def put(self, piece, row, col):
         img = piece['image']
