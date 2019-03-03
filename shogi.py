@@ -54,7 +54,7 @@ class Position(object):
     def put_inhand(self, color, piece):
         self.inhand[color][piece.lstrip('+').upper()] += 1
 
-class Pos(object):
+class Coords(object):
 
     def __init__(self, file, rank):
         self.file = int(file)

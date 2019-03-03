@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
-from shogi import Pos, Move
+from shogi import Coords, Move
 import copy
 import re
 
@@ -158,13 +158,13 @@ def decoder(f):
             else:
                 piece_pos = 1
         else:
-            dst = Pos(line[0], RANKNUM[line[1]])
+            dst = Coords(line[0], RANKNUM[line[1]])
             piece_pos = 2
         # print('dst file = {} rank = {}'.format(dst.file, dst.rank))
 
         m = re.search(r'(成|打)?\((\d)(\d)\)', line)
         if m and m.group(1) != '打':
-            src = Pos(m.group(2), m.group(3))
+            src = Coords(m.group(2), m.group(3))
             # print('src file = {} rank = {}'.format(src.file, src.rank))
             if m.group(1) == '成':
                 promote = True

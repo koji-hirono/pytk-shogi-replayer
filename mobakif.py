@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
-from shogi import Pos, Move
+from shogi import Coords, Move
 import copy
 import re
 
@@ -63,12 +63,12 @@ def decoder(f):
         if line[1] == '同':
             dst = copy.deepcopy(prevdst)
         else:
-            dst = Pos(line[1], RANKNUM[line[2]])
+            dst = Coords(line[1], RANKNUM[line[2]])
         # print('dst file = {} rank = {}'.format(dst.file, dst.rank))
 
         m = re.search(r'(成)?\((\d)(\d)\)$', line)
         if m:
-            src = Pos(m.group(2), m.group(3))
+            src = Coords(m.group(2), m.group(3))
             # print('src file = {} rank = {}'.format(src.file, src.rank))
             if m.group(1) == '成':
                 promote = True

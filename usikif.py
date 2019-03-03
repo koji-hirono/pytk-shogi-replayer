@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
-from shogi import Pos, Move
+from shogi import Coords, Move
 
 RANKNUM = {
         'a': 1,
@@ -23,8 +23,8 @@ def decoder(f):
         if line[0] == '[':
             pass
         elif line[0].isdigit():
-            src = Pos(line[0], RANKNUM[line[1]])
-            dst = Pos(line[2], RANKNUM[line[3]])
+            src = Coords(line[0], RANKNUM[line[1]])
+            dst = Coords(line[2], RANKNUM[line[3]])
             if line[-1] == '+':
                 promote = True
             else:
@@ -32,6 +32,6 @@ def decoder(f):
             yield Move(color[step & 1], dst, src, None, promote)
             step += 1
         elif line[0].isupper():
-            dst = Pos(line[2], RANKNUM[line[3]])
+            dst = Coords(line[2], RANKNUM[line[3]])
             yield Move(color[step & 1], dst, None, line[0], None)
             step += 1
