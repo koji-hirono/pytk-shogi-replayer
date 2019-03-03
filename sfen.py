@@ -1,6 +1,7 @@
  # -*- coding: utf-8 -*2
 
 from __future__ import unicode_literals
+from shogi import BLACK, WHITE
 import re
 
 token_spec = [
@@ -43,7 +44,7 @@ def decoder(s):
         yield 'square', v
     if len(t) < 2:
         return
-    yield 'turn', {'b': 'black', 'w': 'white'}[t[1]]
+    yield 'turn', {'b': BLACK, 'w': WHITE}[t[1]]
     if len(t) < 3 or t[2] == '-':
         return
     for v, n in decoder_inhand(t[2]):

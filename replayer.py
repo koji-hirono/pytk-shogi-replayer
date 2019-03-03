@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from shogi import BLACK, WHITE
+
 class Replayer(object):
 
     def __init__(self, ui, movelog, position):
@@ -78,12 +80,12 @@ class Replayer(object):
                 if t != '':
                     self.ui.position.square.put(self.ui.piece_type[t], i, j)
         for color, data in self.position.inhand.items():
-            if color == 'black':
+            if color == BLACK:
                 inhand = self.ui.position.inhand[1]
             else:
                 inhand = self.ui.position.inhand[0]
             for t, n in data.items():
-                if color == 'black':
+                if color == BLACK:
                     sym = t.upper()
                 else:
                     sym = t.lower()

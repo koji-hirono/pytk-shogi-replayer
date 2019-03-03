@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
-from shogi import Coords, Move
+from shogi import Coords, Move, BLACK, WHITE
 import copy
 import re
 
@@ -124,13 +124,13 @@ END_KEYWORD = {
 }
 
 COLOR = {
-    '▲': 'black',
-    '△': 'white'
+    '▲': BLACK,
+    '△': WHITE
 }
 
 def decoder(f):
     prevdst = None
-    color = 'black'
+    color = BLACK
     for line in f:
         if isinstance(line, bytes):
             try:
@@ -178,8 +178,8 @@ def decoder(f):
         # print('color = {}'.format(color))
         # print('piece = {}'.format(piece))
         yield Move(color, dst, src, piece, promote)
-        if color == 'black':
-            color = 'white'
+        if color == BLACK:
+            color = WHITE
         else:
-            color = 'black'
+            color = BLACK
         prevdst = dst

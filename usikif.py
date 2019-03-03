@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
-from shogi import Coords, Move
+from shogi import Coords, Move, BLACK, WHITE
 
 RANKNUM = {
         'a': 1,
@@ -16,7 +16,7 @@ RANKNUM = {
 }
 
 def decoder(f):
-    color = ['black', 'white']
+    color = [BLACK, WHITE]
     step = 0
     for line in f:
         line = line.strip()

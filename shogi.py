@@ -2,6 +2,8 @@
 
 from __future__ import unicode_literals
 
+BLACK, WHITE = 'black', 'white'
+
 class Position(object):
 
     def __init__(self):
@@ -10,7 +12,7 @@ class Position(object):
     def clear(self):
         self.square = []
         self.inhand = {}
-        for color in ['black', 'white']:
+        for color in [BLACK, WHITE]:
             self.inhand[color] = {}
             for piece in 'PLNSGBRK':
                 self.inhand[color][piece] = 0
@@ -32,9 +34,9 @@ class Position(object):
             elif k == 'inhand':
                 v, n = v
                 if v.isupper():
-                    self.inhand['black'][v] = n
+                    self.inhand[BLACK][v] = n
                 else:
-                    self.inhand['white'][v.upper()] = n
+                    self.inhand[WHITE][v.upper()] = n
             elif k == 'step':
                 self.step = v
         if self.step is None:
@@ -99,7 +101,7 @@ class Movelog(object):
             else:
                 # todo
                 m.piece = position.put_square(m.src, '')
-            if m.color == 'white':
+            if m.color == WHITE:
                 piece = m.piece.lower()
             else:
                 piece = m.piece.upper()
@@ -108,7 +110,7 @@ class Movelog(object):
             m.capture = position.put_square(m.dst, piece)
             if m.capture != '':
                 position.put_inhand(position.turn, m.capture)
-            position.turn = 'white' if position.turn == 'black' else 'black'
+            position.turn = WHITE if position.turn == BLACK else BLACK
             position.step += 1
 
     def forward(self, position, d):
@@ -121,7 +123,7 @@ class Movelog(object):
                 position.put_square(m.src, '')
             else:
                 position.take_inhand(position.turn, m.piece)
-            if m.color == 'white':
+            if m.color == WHITE:
                 piece = m.piece.lower()
             else:
                 piece = m.piece.upper()
@@ -130,7 +132,7 @@ class Movelog(object):
             position.put_square(m.dst, piece)
             if m.capture != '':
                 position.put_inhand(position.turn, m.capture)
-            position.turn = 'white' if position.turn == 'black' else 'black'
+            position.turn = WHITE if position.turn == BLACK else BLACK
         position.step += d
 
     def back(self, position, d):
@@ -139,7 +141,7 @@ class Movelog(object):
         if end < 0:
             return
         for m in self.data[start:end:-1]:
-            position.turn = 'white' if position.turn == 'black' else 'black'
+            position.turn = WHITE if position.turn == BLACK else BLACK
             if m.src:
                 position.put_square(m.src, m.piece)
             else:

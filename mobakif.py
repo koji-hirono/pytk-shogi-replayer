@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
-from shogi import Coords, Move
+from shogi import Coords, Move, BLACK, WHITE
 import copy
 import re
 
@@ -37,8 +37,8 @@ PIECE = {
 }
 
 COLOR = {
-    '▲': 'black',
-    '△': 'white'
+    '▲': BLACK,
+    '△': WHITE
 }
 
 def decoder(f):
