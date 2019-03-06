@@ -63,12 +63,12 @@ def decoder(f):
         if line[1] == '同':
             dst = copy.deepcopy(prevdst)
         else:
-            dst = Coords(line[1], RANKNUM[line[2]])
+            dst = Coords(int(line[1]), RANKNUM[line[2]])
         # print('dst file = {} rank = {}'.format(dst.file, dst.rank))
 
         m = re.search(r'(成)?\((\d)(\d)\)$', line)
         if m:
-            src = Coords(m.group(2), m.group(3))
+            src = Coords(int(m.group(2)), int(m.group(3)))
             # print('src file = {} rank = {}'.format(src.file, src.rank))
             if m.group(1) == '成':
                 modifier = PROMOTE

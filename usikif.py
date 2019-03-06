@@ -23,8 +23,8 @@ def decoder(f):
         if line[0] == '[':
             pass
         elif line[0].isdigit():
-            src = Coords(line[0], RANKNUM[line[1]])
-            dst = Coords(line[2], RANKNUM[line[3]])
+            src = Coords(int(line[0]), RANKNUM[line[1]])
+            dst = Coords(int(line[2]), RANKNUM[line[3]])
             if line[-1] == '+':
                 modifier = PROMOTE
             else:
@@ -32,6 +32,6 @@ def decoder(f):
             yield Move(color[step & 1], dst, src, None, modifier=modifier)
             step += 1
         elif line[0].isupper():
-            dst = Coords(line[2], RANKNUM[line[3]])
+            dst = Coords(int(line[2]), RANKNUM[line[3]])
             yield Move(color[step & 1], dst, None, line[0], modifier=DROP)
             step += 1

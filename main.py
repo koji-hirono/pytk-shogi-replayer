@@ -17,8 +17,9 @@ import shogi
 import replayer
 
 
-def load_file(movelog, position, s, logfile):
-    position.load(sfen.decoder(s))
+def load_file(s, logfile):
+    position = sfen.decoder(s)
+    movelog = shogi.Movelog()
     if logfile.lower().endswith('.psn'):
         with open(logfile, 'r') as f:
             movelog.load(psn.decoder(f))
@@ -41,6 +42,7 @@ def load_file(movelog, position, s, logfile):
             with open(logfile, 'r') as f:
                 movelog.load(kif.decoder(f))
         movelog.normalize(position)
+    return position, movelog
 
 if __name__ == '__main__':
     if len(sys.argv) >= 2:
@@ -54,20 +56,19 @@ if __name__ == '__main__':
 
     theme = theming.Theme('theme-terminal.json')
     ui = tkui.UI(theme)
-    position = shogi.Position()
-    movelog = shogi.Movelog()
 
     if logfile:
-        load_file(movelog, position, s, logfile)
+        position, movelog = load_file(s, logfile)
     else:
-        position.load(sfen.decoder(s))
+        movelog = shogi.Movelog()
+        position = sfen.decoder(s)
 
     player = replayer.Replayer(ui, movelog, position)
     player.init()
 
     def open_file(filename):
         s = 'lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b -'
-        load_file(player.movelog, player.position, s, filename)
+        player.position, player.movelog = load_file(s, filename)
         player.init()
 
     ui.menu.command['open_file'] = open_file

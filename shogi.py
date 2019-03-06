@@ -7,71 +7,57 @@ UPWARD, DOWNWARD, HORIZONTAL = 'upward', 'downward', 'horizontal'
 LEFT, RIGHT, VERTICAL = 'left', 'right', 'vertical'
 DROP, PROMOTE, NOTPROMOTE = 'drop', 'promote', 'notpromote'
 
+
 class Position(object):
 
     def __init__(self):
-        self.clear()
-
-    def clear(self):
-        self.square = []
+        self.nfiles = 0
+        self.nranks = 0
+        self.square = {}
         self.inhand = {}
-        for color in [BLACK, WHITE]:
-            self.inhand[color] = {}
-            for piece in 'PLNSGBRK':
-                self.inhand[color][piece] = 0
         self.turn = None
         self.step = None
 
-    def load(self, parser):
-        self.clear()
-        row = []
-        for k, v in parser:
-            if k == 'square':
-                if v == '/':
-                    self.square.append(row)
-                    row = []
-                else:
-                    row.append(v)
-            elif k == 'turn':
-                self.turn = v
-            elif k == 'inhand':
-                v, n = v
-                if v.isupper():
-                    self.inhand[BLACK][v] = n
-                else:
-                    self.inhand[WHITE][v.upper()] = n
-            elif k == 'step':
-                self.step = v
-        if self.step is None:
-            self.step = 1
+    def set_square(self, coords, piece):
+        self.square.setdefault(coords.file, {})
+        self.square[coords.file][coords.rank] = piece
 
-    def get_square(self, pos):
-        return self.square[pos.row][pos.col]
+    def get_square(self, coords):
+        return self.square[coords.file][coords.rank]
 
-    def put_square(self, pos, piece):
-        p = self.square[pos.row][pos.col]
-        self.square[pos.row][pos.col] = piece
+    def put_square(self, coords, piece):
+        p = self.get_square(coords)
+        self.square[coords.file][coords.rank] = piece
         return p
+
+    def take_square(self, coords):
+        return self.put_square(coords, None)
+
+    def set_inhand(self, color, piece, n):
+        self.inhand.setdefault(color, {})
+        self.inhand[color][piece] = n
+
+    def get_inhand(self, color, piece):
+        self.inhand.setdefault(color, {})
+        self.inhand[color].setdefault(piece, 0)
+        return self.inhand[color][piece]
+
+    def put_inhand(self, color, piece):
+        piece = piece.lstrip('+').upper()
+        self.inhand.setdefault(color, {})
+        self.inhand[color].setdefault(piece, 0)
+        self.inhand[color][piece] += 1
 
     def take_inhand(self, color, piece):
         self.inhand[color][piece.lstrip('+').upper()] -= 1
 
-    def put_inhand(self, color, piece):
-        self.inhand[color][piece.lstrip('+').upper()] += 1
 
 class Coords(object):
 
     def __init__(self, file, rank):
-        self.file = int(file)
-        self.rank = int(rank)
+        self.file = file
+        self.rank = rank
 
-    @property
-    def row(self):
-        return self.rank - 1
-
-    @property
-    def col(self):
-        return 9 - self.file
 
 class Move(object):
 
@@ -84,6 +70,7 @@ class Move(object):
         self.relative = kwargs.pop('relative', None)
         self.modifier = kwargs.pop('modifier', None)
         self.capture = None
+
 
 class Movelog(object):
 
@@ -99,16 +86,17 @@ class Movelog(object):
         prev_dst = None
         for m in self.data:
             if not m:
+                position.step += 1
                 continue
             if m.dst == 'same':
                 m.dst = prev_dst
-            if m.piece is None:
-                m.piece = position.put_square(m.src, '')
-            elif m.src is None:
+            if m.modifier is DROP:
                 position.take_inhand(position.turn, m.piece)
+            elif m.src is None:
+                pass
             else:
-                # todo
-                m.piece = position.put_square(m.src, '')
+                m.piece = position.take_square(m.src)
+
             if m.color == WHITE:
                 piece = m.piece.lower()
             else:
@@ -116,20 +104,22 @@ class Movelog(object):
             if m.modifier == PROMOTE:
                 piece = '+' + piece
             m.capture = position.put_square(m.dst, piece)
-            if m.capture != '':
+            if m.capture:
                 position.put_inhand(position.turn, m.capture)
             position.turn = WHITE if position.turn == BLACK else BLACK
             position.step += 1
             prev_dst = m.dst
 
     def forward(self, position, d):
-        start = position.step
+        start = position.step + 1
         end = start + d
         if end > len(self.data):
             return
         for m in self.data[start:end]:
+            if not m:
+                continue
             if m.src:
-                position.put_square(m.src, '')
+                position.take_square(m.src)
             else:
                 position.take_inhand(position.turn, m.piece)
             if m.color == WHITE:
@@ -139,13 +129,13 @@ class Movelog(object):
             if m.modifier == PROMOTE:
                 piece = '+' + piece
             position.put_square(m.dst, piece)
-            if m.capture != '':
+            if m.capture:
                 position.put_inhand(position.turn, m.capture)
             position.turn = WHITE if position.turn == BLACK else BLACK
         position.step += d
 
     def back(self, position, d):
-        start = position.step - 1
+        start = position.step
         end = start - d
         if end < 0:
             return
@@ -156,12 +146,12 @@ class Movelog(object):
             else:
                 position.put_inhand(position.turn, m.piece)
             position.put_square(m.dst, m.capture)
-            if m.capture != '':
+            if m.capture:
                 position.take_inhand(position.turn, m.capture)
         position.step -= d
 
     def goto(self, position, n):
-        cur = position.step - 1
+        cur = position.step
         if n > cur:
             self.forward(position, n - cur)
         elif n < cur:

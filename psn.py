@@ -35,13 +35,13 @@ def decoder(f):
                 token = token[1:]
             #print('token = "{}"'.format(token))
             if token[1] == '*':
-                dst = Coords(token[2], RANKNUM[token[3]])
+                dst = Coords(int(token[2]), RANKNUM[token[3]])
                 #print('dst file = {} rank = {}'.format(dst.file, dst.rank))
                 #print('piece = {}'.format(token[0]))
                 yield Move(color[step & 1], dst, None, token[0], modifier=DROP)
             else:
-                src = Coords(token[1], RANKNUM[token[2]])
-                dst = Coords(token[4], RANKNUM[token[5]])
+                src = Coords(int(token[1]), RANKNUM[token[2]])
+                dst = Coords(int(token[4]), RANKNUM[token[5]])
                 if token[-1] == '+':
                     modifier = PROMOTE
                 else:
