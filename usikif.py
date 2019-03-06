@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
-from shogi import Coords, Move, BLACK, WHITE
+from shogi import Coords, Move, BLACK, WHITE, DROP, PROMOTE
 
 RANKNUM = {
         'a': 1,
@@ -26,12 +26,12 @@ def decoder(f):
             src = Coords(line[0], RANKNUM[line[1]])
             dst = Coords(line[2], RANKNUM[line[3]])
             if line[-1] == '+':
-                promote = True
+                modifier = PROMOTE
             else:
-                promote = False
-            yield Move(color[step & 1], dst, src, None, promote)
+                modifier = None
+            yield Move(color[step & 1], dst, src, None, modifier=modifier)
             step += 1
         elif line[0].isupper():
             dst = Coords(line[2], RANKNUM[line[3]])
-            yield Move(color[step & 1], dst, None, line[0], None)
+            yield Move(color[step & 1], dst, None, line[0], modifier=DROP)
             step += 1

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
-from shogi import Coords, Move, BLACK, WHITE
+from shogi import Coords, Move, BLACK, WHITE, DROP, PROMOTE
 
 RANKNUM = {
         'a': 1,
@@ -38,16 +38,16 @@ def decoder(f):
                 dst = Coords(token[2], RANKNUM[token[3]])
                 #print('dst file = {} rank = {}'.format(dst.file, dst.rank))
                 #print('piece = {}'.format(token[0]))
-                yield Move(color[step & 1], dst, None, token[0], None)
+                yield Move(color[step & 1], dst, None, token[0], modifier=DROP)
             else:
                 src = Coords(token[1], RANKNUM[token[2]])
                 dst = Coords(token[4], RANKNUM[token[5]])
                 if token[-1] == '+':
-                    promote = True
+                    modifier = PROMOTE
                 else:
-                    promote = False
+                    modifier = None
                 #print('src file = {} rank = {}'.format(src.file, src.rank))
                 #print('dst file = {} rank = {}'.format(dst.file, dst.rank))
-                yield Move(color[step & 1], dst, src, None, promote)
+                yield Move(color[step & 1], dst, src, None, modifier=modifier)
             step += 1
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
-from shogi import Coords, Move, BLACK, WHITE
+from shogi import Coords, Move, BLACK, WHITE, DROP, PROMOTE
 import copy
 import re
 
@@ -71,15 +71,15 @@ def decoder(f):
             src = Coords(m.group(2), m.group(3))
             # print('src file = {} rank = {}'.format(src.file, src.rank))
             if m.group(1) == '成':
-                promote = True
+                modifier = PROMOTE
             else:
-                promote = False
+                modifier = None
             piece = None
         else:
             src = None
-            promote = None
+            modifier = DROP
             piece = PIECE[line[3]]
         # print('color = {}'.format(color))
         # print('piece = {}'.format(piece))
-        yield Move(color, dst, src, piece, promote)
+        yield Move(color, dst, src, piece, modifier=modifier)
         prevdst = dst

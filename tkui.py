@@ -13,6 +13,7 @@ except:
     import ttk
     import tkFileDialog as filedialog
 from PIL import ImageTk
+from shogi import PROMOTE
 
 
 class Square(tk.Frame):
@@ -117,7 +118,7 @@ def move_format(m, theme):
     s += theme.config['axis']['file'][m.dst.file - 1]
     s += theme.config['axis']['rank'][m.dst.rank - 1]
     s += theme.config['piece']['name'][m.piece.upper()]
-    if m.promote:
+    if m.modifier == PROMOTE:
         s += theme.config['piece']['promote']
     if m.src:
         s += '({}{})'.format(m.src.file, m.src.rank)

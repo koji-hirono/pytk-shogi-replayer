@@ -3,6 +3,9 @@
 from __future__ import unicode_literals
 
 BLACK, WHITE = 'black', 'white'
+UPWARD, DOWNWARD, HORIZONTAL = 'upward', 'downward', 'horizontal'
+LEFT, RIGHT, VERTICAL = 'left', 'right', 'vertical'
+DROP, PROMOTE, NOTPROMOTE = 'drop', 'promote', 'notpromote'
 
 class Position(object):
 
@@ -72,12 +75,14 @@ class Coords(object):
 
 class Move(object):
 
-    def __init__(self, color, dst, src=None, piece=None, promote=False):
+    def __init__(self, color, dst, src=None, piece=None, **kwargs):
         self.color = color
         self.piece = piece
         self.dst = dst
         self.src = src
-        self.promote = promote
+        self.movement = kwargs.pop('movement', None)
+        self.relative = kwargs.pop('relative', None)
+        self.modifier = kwargs.pop('modifier', None)
         self.capture = None
 
 class Movelog(object):
@@ -91,9 +96,12 @@ class Movelog(object):
             self.data.append(m)
 
     def normalize(self, position):
+        prev_dst = None
         for m in self.data:
             if not m:
                 continue
+            if m.dst == 'same':
+                m.dst = prev_dst
             if m.piece is None:
                 m.piece = position.put_square(m.src, '')
             elif m.src is None:
@@ -105,13 +113,14 @@ class Movelog(object):
                 piece = m.piece.lower()
             else:
                 piece = m.piece.upper()
-            if m.promote:
+            if m.modifier == PROMOTE:
                 piece = '+' + piece
             m.capture = position.put_square(m.dst, piece)
             if m.capture != '':
                 position.put_inhand(position.turn, m.capture)
             position.turn = WHITE if position.turn == BLACK else BLACK
             position.step += 1
+            prev_dst = m.dst
 
     def forward(self, position, d):
         start = position.step
@@ -127,7 +136,7 @@ class Movelog(object):
                 piece = m.piece.lower()
             else:
                 piece = m.piece.upper()
-            if m.promote:
+            if m.modifier == PROMOTE:
                 piece = '+' + piece
             position.put_square(m.dst, piece)
             if m.capture != '':

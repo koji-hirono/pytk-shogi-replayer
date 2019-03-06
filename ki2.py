@@ -4,6 +4,8 @@ from __future__ import unicode_literals
 from peg import GrammarBuilder, Parser
 from shogi import Coords, Move
 from shogi import BLACK, WHITE
+from shogi import RIGHT, LEFT, VERTICAL
+from shogi import UPWARD, DOWNWARD, HORIZONTAL
 from shogi import DROP, PROMOTE, NOTPROMOTE
 import sys
 
@@ -21,11 +23,11 @@ def grammar():
     def file():
         return ['１', '２', '３', '４', '５', '６', '７', '８', '９']
 
-    def digit():
-        return g.regexp(r'\d')
+    def relative():
+        return ['右', '左', '直']
 
-    def number():
-        return g.regexp(r'\d+')
+    def movement():
+        return ['上', '引', '寄']
 
     def modifier():
         return ['打', '成', '不成']
@@ -47,20 +49,11 @@ def grammar():
     def result():
         return 'まで', any_string
 
-    def step():
-        return number
-
     def dst():
         return [(file, rank), '同']
 
-    def src():
-        return '(', digit, digit, ')'
-
-    def timestamp():
-        return number, ':', number, g.opt(':', number)
-
-    def elapsed_time():
-        return '(', timestamp, '/', g.opt(timestamp), ')'
+    def color():
+        return ['▲', '△']
 
     def comment():
         return '#', any_string
@@ -71,33 +64,22 @@ def grammar():
     def bookmark():
         return '&', any_string
 
-    def move_sep():
-        return ('手数', g.repeat1('-'),
-                '指手', g.repeat1('-'),
-                '消費時間', g.repeat1('-'))
-
-    def end_keyword():
-        return ['詰み', '詰', '投了', '切れ負け', '中断',
-                '千日手', '持将棋', '反則負け', '反則勝ち']
-
-    def end_move():
-        return step, end_keyword
-
     def move():
-        return (step, dst, piece, g.opt(modifier), g.opt(src),
-                g.opt(elapsed_time))
+        return (g.opt(color), dst, piece, g.opt(relative),
+                g.opt(movement), g.opt(modifier))
 
     def movelog():
         return (g.repeat0([info, comment]),
-                g.opt(move_sep),
                 g.repeat1([move, user_comment, bookmark]),
-                g.opt(end_move),
                 g.opt(result))
 
     return g.build(movelog)
 
 
 class Semantics(object):
+
+    def color(self, t):
+        return {'▲':BLACK, '△':WHITE}[t]
 
     def file(self, t):
         return {'１':1, '２':2, '３':3, '４':4, '５':5,
@@ -107,23 +89,20 @@ class Semantics(object):
         return {'一':1, '二':2, '三':3, '四':4, '五':5,
                 '六':6, '七':7, '八':8, '九':9}[t]
 
-    def digit(self, t):
-        return int(t)
-
-    def number(self, t):
-        return int(t)
-
     def piece(self, t):
-        return {'歩': 'P', '香': 'L', '桂': 'N', '銀': 'S', '金': 'G',
-                '角': 'B', '飛': 'R', '王': 'K', '玉': 'K', 'と': '+P',
-                '成香': '+L', '成桂': '+N', '成銀': '+S', '馬': '+B',
-                '竜': '+R', '龍': '+R'}[t]
+        return {'歩':'P', '香':'L', '桂':'N', '銀':'S', '金':'G',
+                '角':'B', '飛':'R', '王':'K', '玉':'K', 'と':'+P',
+                '成香':'+L', '成桂':'+N', '成銀':'+S', '馬':'+B',
+                '竜':'+R', '龍':'+R'}[t]
+
+    def relative(self, t):
+        return {'右':RIGHT, '左':LEFT, '直':VERTICAL}[t]
+
+    def movement(self, t):
+        return {'上':UPWARD, '引':DOWNWARD, '寄':HORIZONTAL}[t]
 
     def modifier(self, t):
         return {'打':DROP, '成':PROMOTE, '不成':NOTPROMOTE}[t]
-
-    def src(self, t):
-        return Coords(t[1], t[2])
 
     def dst(self, t):
         if isinstance(t, list):
@@ -131,26 +110,12 @@ class Semantics(object):
         else:
             return 'same'
 
-    def user_comment(self, t):
-        pass
-
-    def bookmark(self, t):
-        pass
-
-    def end_move(self, t):
-        pass
-
     def move(self, t):
-        color = (WHITE, BLACK)[t[0] & 1]
-        # XXX: old kif file src == dst
-        if t[3] == DROP:
-            src = None
-        else:
-            src = t[4]
-        return Move(color, t[1], piece=t[2], modifier=t[3], src=src)
+        return Move(t[0], t[1], piece=t[2], relative=t[3], movement=t[4],
+                modifier=t[5])
 
     def movelog(self, t):
-        return t[2]
+        return t[1]
 
 
 def decoder(f):
@@ -161,7 +126,6 @@ def decoder(f):
             s = s.decode('utf-8')
         except:
             s = s.decode('shift_jis')
-
     parser = Parser(s, semantics=Semantics())
     accepted, t = g.parse(parser)
     return t

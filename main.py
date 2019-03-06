@@ -11,6 +11,7 @@ import sfen
 import usikif
 import mobakif
 import kif
+import ki2
 import psn
 import shogi
 import replayer
@@ -25,6 +26,10 @@ def load_file(movelog, position, s, logfile):
     elif logfile.lower().endswith('.usi'):
         with open(logfile, 'r') as f:
             movelog.load(usikif.decoder(f))
+            movelog.normalize(position)
+    elif logfile.lower().endswith('.ki2'):
+        with open(logfile, 'r') as f:
+            movelog.load(ki2.decoder(f))
             movelog.normalize(position)
     elif logfile.lower().endswith('.kif'):
         fail = False
