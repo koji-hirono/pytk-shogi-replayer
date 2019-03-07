@@ -115,7 +115,7 @@ class Semantics(object):
                 modifier=t[5])
 
     def movelog(self, t):
-        return t[1]
+        return [m for m in t[1] if type(m) is Move]
 
 
 def decoder(f):

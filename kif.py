@@ -131,15 +131,6 @@ class Semantics(object):
         else:
             return 'same'
 
-    def user_comment(self, t):
-        pass
-
-    def bookmark(self, t):
-        pass
-
-    def end_move(self, t):
-        pass
-
     def move(self, t):
         color = (WHITE, BLACK)[t[0] & 1]
         # XXX: old kif file src == dst
@@ -150,7 +141,7 @@ class Semantics(object):
         return Move(color, t[1], piece=t[2], modifier=t[3], src=src)
 
     def movelog(self, t):
-        return t[2]
+        return [m for m in t[2] if type(m) is Move]
 
 
 def decoder(f):
@@ -161,7 +152,6 @@ def decoder(f):
             s = s.decode('utf-8')
         except:
             s = s.decode('shift_jis')
-
     parser = Parser(s, semantics=Semantics())
     accepted, t = g.parse(parser)
     return t

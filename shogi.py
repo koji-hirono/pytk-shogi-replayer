@@ -3,9 +3,128 @@
 from __future__ import unicode_literals
 
 BLACK, WHITE = 'black', 'white'
-UPWARD, DOWNWARD, HORIZONTAL = 'upward', 'downward', 'horizontal'
-LEFT, RIGHT, VERTICAL = 'left', 'right', 'vertical'
 DROP, PROMOTE, NOTPROMOTE = 'drop', 'promote', 'notpromote'
+
+def LEFT(srclist, color, piece, dst):
+    file = None
+    for src in srclist:
+        if file is None:
+            file = src.file
+        elif color == BLACK and src.file > file:
+            file = src.file
+        elif color != BLACK and src.file < file:
+            file = src.file
+    for src in srclist:
+        if src.file == file:
+            yield src
+
+def RIGHT(srclist, color, piece, dst):
+    file = None
+    for src in srclist:
+        if file is None:
+            file = src.file
+        elif color == BLACK and src.file < file:
+            file = src.file
+        elif color != BLACK and src.file > file:
+            file = src.file
+    for src in srclist:
+        if src.file == file:
+            yield src
+
+def VERTICAL(srclist, color, piece, dst):
+    for src in srclist:
+        if color == BLACK:
+            dy = src.rank - dst.rank
+            dx = src.file - dst.file
+        else:
+            dy = dst.rank - src.rank
+            dx = dst.file - src.file
+        if dy == 1 and dx == 0:
+            yield src
+
+def UPWARD(srclist, color, piece, dst):
+    for src in srclist:
+        if color == BLACK:
+            dy = src.rank - dst.rank
+        else:
+            dy = dst.rank - src.rank
+        if dy > 0:
+            yield src
+
+def DOWNWARD(srclist, color, piece, dst):
+    for src in srclist:
+        if color == BLACK:
+            dy = src.rank - dst.rank
+        else:
+            dy = dst.rank - src.rank
+        if dy < 0:
+            yield src
+
+def HORIZONTAL(srclist, color, piece, dst):
+    for src in srclist:
+        if color == BLACK:
+            dy = src.rank - dst.rank
+            dx = src.file - dst.file
+        else:
+            dy = dst.rank - src.rank
+            dx = dst.file - src.file
+        if dy == 0 and abs(dx) > 0:
+            yield src
+
+def pawn_isreachable(dx, dy):
+    return dx == 0 and dy == 1
+
+def lance_isreachable(dx, dy):
+    return dx == 0 and dy > 0
+
+def knight_isreachable(dx, dy):
+    return abs(dx) == 1 and dy == 2
+
+def silver_isreachable(dx, dy):
+    return abs(dx) == abs(dy) == 1 or pawn_isreachable(dx, dy)
+
+def gold_isreachable(dx, dy):
+    return (dx == 0 and abs(dy) == 1) or (abs(dx) == 1 and dy in (0, 1))
+
+def bishop_isreachable(dx, dy):
+    return abs(dx) == abs(dy)
+
+def rook_isreachable(dx, dy):
+    return dx == 0 or dy == 0
+
+def king_isreachable(dx, dy):
+    return abs(dx) <= 1 and abs(dy) <= 1
+
+def horse_isreachable(dx, dy):
+    return bishop_isreachable(dx, dy) or king_isreachable(dx, dy)
+
+def dragon_isreachable(dx, dy):
+    return rook_isreachable(dx, dy) or king_isreachable(dx, dy)
+
+def isreachable(color, piece, dst, src):
+    f = {
+        'P':pawn_isreachable,
+        'L':lance_isreachable,
+        'N':knight_isreachable,
+        'S':silver_isreachable,
+        'G':gold_isreachable,
+        'B':bishop_isreachable,
+        'R':rook_isreachable,
+        'K':king_isreachable,
+        '+P':gold_isreachable,
+        '+L':gold_isreachable,
+        '+N':gold_isreachable,
+        '+S':gold_isreachable,
+        '+B':horse_isreachable,
+        '+R':dragon_isreachable
+    }
+    if color == BLACK:
+        dx = src.file - dst.file
+        dy = src.rank - dst.rank
+    else:
+        dx = dst.file - src.file
+        dy = dst.rank - src.rank
+    return f[piece](dx, dy)
 
 
 class Position(object):
@@ -51,6 +170,26 @@ class Position(object):
     def take_inhand(self, color, piece):
         self.inhand[color][piece.lstrip('+').upper()] -= 1
 
+    def find_src(self, color, piece, dst):
+        for rank in range(1, self.nranks + 1):
+            for file in range(1, self.nfiles + 1):
+                src = Coords(file, rank)
+                v = self.get_square(src)
+                if v is None:
+                    continue
+                if v.isupper():
+                    e_piece = v
+                    e_color = BLACK
+                else:
+                    e_piece = v.upper()
+                    e_color = WHITE
+                if color != e_color:
+                    continue
+                if piece != e_piece:
+                    continue
+                if isreachable(color, piece, dst, src):
+                    yield src
+
 
 class Coords(object):
 
@@ -92,10 +231,28 @@ class Movelog(object):
                 m.dst = prev_dst
             if m.modifier is DROP:
                 position.take_inhand(position.turn, m.piece)
-            elif m.src is None:
-                pass
-            else:
+            elif m.src:
                 m.piece = position.take_square(m.src)
+            else:
+                srclist = list(position.find_src(m.color, m.piece, m.dst))
+                if len(srclist) == 0:
+                    m.modifier = DROP
+                    position.take_inhand(position.turn, m.piece)
+                elif len(srclist) == 1:
+                    m.src = srclist[0]
+                    m.piece = position.take_square(m.src)
+                else:
+                    if m.relative:
+                        srclist = list(m.relative(srclist, m.color,
+                            m.piece, m.dst))
+                    if m.movement:
+                        srclist = list(m.movement(srclist, m.color,
+                            m.piece, m.dst))
+                    if len(srclist) == 1:
+                        m.src = srclist[0]
+                    else:
+                        raise ValueError(srclist)
+                    m.piece = position.take_square(m.src)
 
             if m.color == WHITE:
                 piece = m.piece.lower()
