@@ -1,7 +1,7 @@
  # -*- coding: utf-8 -*2
 
 from __future__ import unicode_literals
-from shogi import Position, Coords, BLACK, WHITE
+from shogitk.shogi import Position, Coords, BLACK, WHITE
 import re
 
 STARTPOS='lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b - 1'

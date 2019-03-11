@@ -15,7 +15,7 @@ Usage
 -----
 
 ```
-$ main.py [LOGFILE]
+$ main.py [-l LOGFILE] [-s SFEN] [-t THEME]
 ```
 
 Screenshot

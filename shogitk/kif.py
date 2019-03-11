@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
-from peg import GrammarBuilder, Parser
-from shogi import Coords, Move
-from shogi import BLACK, WHITE
-from shogi import DROP, PROMOTE, NOTPROMOTE
+from shogitk.peg import GrammarBuilder, Parser
+from shogitk.shogi import Coords, Move
+from shogitk.shogi import BLACK, WHITE
+from shogitk.shogi import DROP, PROMOTE, NOTPROMOTE
 import sys
 
 

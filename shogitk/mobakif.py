@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
-from shogi import Coords, Move, BLACK, WHITE, DROP, PROMOTE
+from shogitk.shogi import Coords, Move, BLACK, WHITE, DROP, PROMOTE
 import copy
 import re
 

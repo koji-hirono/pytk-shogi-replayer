@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from shogi import Coords, BLACK, WHITE
+from shogitk.shogi import Coords, BLACK, WHITE
 
 class Replayer(object):
 

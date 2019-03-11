@@ -14,7 +14,7 @@ except:
     import tkFileDialog as filedialog
 import os
 from PIL import ImageTk
-from shogi import PROMOTE, DROP
+from shogitk.shogi import PROMOTE, DROP
 
 
 class Square(tk.Frame):

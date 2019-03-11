@@ -6,16 +6,16 @@ from __future__ import unicode_literals
 import os
 import sys
 import argparse
-import tkui
-import theming
-import sfen
-import usikif
-import mobakif
-import kif
-import ki2
-import psn
-import shogi
-import replayer
+import shogitk.tkui as tkui
+import shogitk.theming as theming
+import shogitk.sfen as sfen
+import shogitk.usikif as usikif
+import shogitk.mobakif as mobakif
+import shogitk.kif as kif
+import shogitk.ki2 as ki2
+import shogitk.psn as psn
+import shogitk.shogi as shogi
+import shogitk.replayer as replayer
 
 
 def load_file(s, logfile):

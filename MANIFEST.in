@@ -1,0 +1,2 @@
+include shogitk/images/*.png
+include shogitk/*.json
