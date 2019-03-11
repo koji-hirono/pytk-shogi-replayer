@@ -12,17 +12,21 @@ except:
     import tkFont as tkfont
     import ttk
     import tkFileDialog as filedialog
+import os
 from PIL import ImageTk
-from shogi import PROMOTE
+from shogi import PROMOTE, DROP
 
 
 class Square(tk.Frame):
     def __init__(self, parent, theme):
         tk.Frame.__init__(self, parent)
+        imgpath = os.path.join(theme.dir, 'images')
         self.bg_img = ImageTk.PhotoImage(
-                file='images/' + theme.config['board']['background'])
+                file=os.path.join(theme.dir, 'images',
+                    theme.config['board']['background']))
         self.sq_img = ImageTk.PhotoImage(
-                file='images/' + theme.config['board']['square'])
+                file=os.path.join(theme.dir, 'images',
+                    theme.config['board']['square']))
         w = self.bg_img.width()
         h = self.bg_img.height()
         self.canvas = tk.Canvas(self, width=w, height=h)
@@ -114,16 +118,33 @@ class Position(tk.Frame):
         self.inhand[1].grid(row=0, column=2, padx=5, pady=5, sticky='s')
 
 def move_format(m, theme):
-    s = theme.config['color'][m.color]
-    s += theme.config['axis']['file'][m.dst.file - 1]
-    s += theme.config['axis']['rank'][m.dst.rank - 1]
-    s += theme.config['piece']['name'][m.piece.upper()]
-    if m.modifier == PROMOTE:
-        s += theme.config['piece']['promote']
-    if m.src:
-        s += '({}{})'.format(m.src.file, m.src.rank)
+    if theme.config['move']['style'] == 'western':
+        s = theme.config['piece']['name'][m.piece.upper()]
+        if m.modifier == DROP:
+            s += theme.config['piece']['drop']
+        elif m.capture is not None:
+            s += theme.config['axis']['file'][m.src.file - 1]
+            s += theme.config['axis']['rank'][m.src.rank - 1]
+            s += 'x'
+        else:
+            s += theme.config['axis']['file'][m.src.file - 1]
+            s += theme.config['axis']['rank'][m.src.rank - 1]
+            s += '-'
+        s += theme.config['axis']['file'][m.dst.file - 1]
+        s += theme.config['axis']['rank'][m.dst.rank - 1]
+        if m.modifier == PROMOTE:
+            s += theme.config['piece']['promote']
     else:
-        s += theme.config['piece']['drop']
+        s = theme.config['color'][m.color]
+        s += theme.config['axis']['file'][m.dst.file - 1]
+        s += theme.config['axis']['rank'][m.dst.rank - 1]
+        s += theme.config['piece']['name'][m.piece.upper()]
+        if m.modifier == PROMOTE:
+            s += theme.config['piece']['promote']
+        if m.src:
+            s += '({}{})'.format(m.src.file, m.src.rank)
+        else:
+            s += theme.config['piece']['drop']
     return s
 
 class Movelog(tk.Frame):
@@ -212,7 +233,8 @@ class UI(object):
         for name, file in theme.config['piece']['image'].items():
             self.piece_type[name] = {
                 'name': name,
-                'image': ImageTk.PhotoImage(file='images/'+file)
+                'image': ImageTk.PhotoImage(
+                    file=os.path.join(theme.dir, 'images', file))
             }
         self.position = Position(self.root, theme)
         self.movelog = Movelog(self.root, theme)

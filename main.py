@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 
 import os
 import sys
+import argparse
 import tkui
 import theming
 import sfen
@@ -44,33 +45,38 @@ def load_file(s, logfile):
         movelog.normalize(position)
     return position, movelog
 
-if __name__ == '__main__':
-    if len(sys.argv) >= 2:
-        logfile = sys.argv[1]
-    else:
-        logfile = None
-    if len(sys.argv) >= 3:
-        s = sys.argv[2]
-    else:
-        s = 'lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b -'
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-l', '--logfile')
+    parser.add_argument('-s', '--sfen', default=sfen.STARTPOS)
+    parser.add_argument('-t', '--theme', default='theme-terminal.json')
+    args = parser.parse_args()
 
-    theme = theming.Theme('theme-terminal.json')
+    theme_file = os.path.join(os.path.expanduser('~'),
+            '.pytk-shogi-replayer', args.theme)
+    if not os.path.exists(theme_file):
+        theme_file = os.path.join(os.path.dirname(__file__), args.theme)
+
+    theme = theming.Theme(theme_file)
     ui = tkui.UI(theme)
 
-    if logfile:
-        position, movelog = load_file(s, logfile)
+    if args.logfile:
+        position, movelog = load_file(args.sfen, args.logfile)
     else:
         movelog = shogi.Movelog()
-        position = sfen.decoder(s)
+        position = sfen.decoder(args.sfen)
 
     player = replayer.Replayer(ui, movelog, position)
     player.init()
 
     def open_file(filename):
-        s = 'lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b -'
+        s = sfen.STARTPOS
         player.position, player.movelog = load_file(s, filename)
         player.init()
 
     ui.menu.command['open_file'] = open_file
 
     ui.run()
+
+if __name__ == '__main__':
+    main()

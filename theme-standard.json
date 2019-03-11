@@ -1,21 +1,21 @@
 {
   "board": {
     "padding": {
-      "x": 11,
-      "y": 11
+      "x": 10,
+      "y": 10
     },
-    "background": "ban_kaya_a.png",
+    "background": "ban_kaya_c.png",
     "square": "masu_dot.png"
   },
   "piece": {
     "name": {
       "P": "歩", "+P": "と",
-      "L": "香", "+L": "杏",
-      "N": "桂", "+N": "圭",
-      "S": "銀", "+S": "全",
+      "L": "香", "+L": "成香",
+      "N": "桂", "+N": "成桂",
+      "S": "銀", "+S": "成銀",
       "G": "金",
       "B": "角", "+B": "馬",
-      "R": "飛", "+R": "龍",
+      "R": "飛", "+R": "竜",
       "K": "玉"
     },
     "image": {
@@ -48,8 +48,8 @@
     ]
   },
   "color": {
-    "black": "▲",
-    "white": "△"
+    "black": "☗",
+    "white": "☖"
   },
   "move": {
     "style": "japanese"
