@@ -210,6 +210,12 @@ class Move(object):
         self.modifier = kwargs.pop('modifier', None)
         self.capture = None
 
+    def isdrop(self):
+        return self.modifier == DROP
+
+    def ispromote(self):
+        return self.modifier == PROMOTE
+
 
 class Movelog(object):
 

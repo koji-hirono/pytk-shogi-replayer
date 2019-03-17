@@ -14,7 +14,6 @@ except:
     import tkFileDialog as filedialog
 import os
 from PIL import ImageTk
-from shogitk.shogi import PROMOTE, DROP
 
 
 class Square(tk.Frame):
@@ -120,7 +119,7 @@ class Position(tk.Frame):
 def move_format(m, theme):
     if theme.config['move']['style'] == 'western':
         s = theme.config['piece']['name'][m.piece.upper()]
-        if m.modifier == DROP:
+        if m.isdrop():
             s += theme.config['piece']['drop']
         elif m.capture is not None:
             s += theme.config['axis']['file'][m.src.file - 1]
@@ -132,14 +131,14 @@ def move_format(m, theme):
             s += '-'
         s += theme.config['axis']['file'][m.dst.file - 1]
         s += theme.config['axis']['rank'][m.dst.rank - 1]
-        if m.modifier == PROMOTE:
+        if m.ispromote():
             s += theme.config['piece']['promote']
     else:
         s = theme.config['color'][m.color]
         s += theme.config['axis']['file'][m.dst.file - 1]
         s += theme.config['axis']['rank'][m.dst.rank - 1]
         s += theme.config['piece']['name'][m.piece.upper()]
-        if m.modifier == PROMOTE:
+        if m.ispromote():
             s += theme.config['piece']['promote']
         if m.src:
             s += '({}{})'.format(m.src.file, m.src.rank)
