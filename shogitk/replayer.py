@@ -1,6 +1,42 @@
 # -*- coding: utf-8 -*-
 
 from shogitk.shogi import Coords, BLACK, WHITE
+import shogitk.shogi as shogi
+import shogitk.sfen as sfen
+import shogitk.usikif as usikif
+import shogitk.mobakif as mobakif
+import shogitk.kif as kif
+import shogitk.ki2 as ki2
+import shogitk.psn as psn
+
+
+def load_file(s, logfile):
+    position = sfen.decoder(s)
+    movelog = shogi.Movelog()
+    if logfile.lower().endswith('.psn'):
+        with open(logfile, 'r') as f:
+            movelog.load(psn.decoder(f))
+            movelog.normalize(position)
+    elif logfile.lower().endswith('.usi'):
+        with open(logfile, 'r') as f:
+            movelog.load(usikif.decoder(f))
+            movelog.normalize(position)
+    elif logfile.lower().endswith('.ki2'):
+        with open(logfile, 'r') as f:
+            movelog.load(ki2.decoder(f))
+            movelog.normalize(position)
+    elif logfile.lower().endswith('.kif'):
+        fail = False
+        with open(logfile, 'r') as f:
+            movelog.load(mobakif.decoder(f))
+            if len(movelog.data) < 2:
+                fail = True
+        if fail:
+            with open(logfile, 'r') as f:
+                movelog.load(kif.decoder(f))
+        movelog.normalize(position)
+    return position, movelog
+
 
 class Replayer(object):
 
@@ -13,6 +49,12 @@ class Replayer(object):
         self.ui.control.prev1.configure(command=self.move_back)
         self.ui.control.next1.configure(command=self.move_forward)
         self.ui.movelog.tree.bind('<ButtonRelease-1>', self.move_goto)
+        self.ui.menu.command['open_file'] = self.open_file
+
+    def open_file(self, filename):
+        s = sfen.STARTPOS
+        self.position, self.movelog = load_file(s, filename)
+        self.init()
 
     def init(self):
         self.movelog.goto(self.position, 0)

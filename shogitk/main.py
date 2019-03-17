@@ -9,41 +9,9 @@ import argparse
 import shogitk.tkui as tkui
 import shogitk.theming as theming
 import shogitk.sfen as sfen
-import shogitk.usikif as usikif
-import shogitk.mobakif as mobakif
-import shogitk.kif as kif
-import shogitk.ki2 as ki2
-import shogitk.psn as psn
 import shogitk.shogi as shogi
 import shogitk.replayer as replayer
 
-
-def load_file(s, logfile):
-    position = sfen.decoder(s)
-    movelog = shogi.Movelog()
-    if logfile.lower().endswith('.psn'):
-        with open(logfile, 'r') as f:
-            movelog.load(psn.decoder(f))
-            movelog.normalize(position)
-    elif logfile.lower().endswith('.usi'):
-        with open(logfile, 'r') as f:
-            movelog.load(usikif.decoder(f))
-            movelog.normalize(position)
-    elif logfile.lower().endswith('.ki2'):
-        with open(logfile, 'r') as f:
-            movelog.load(ki2.decoder(f))
-            movelog.normalize(position)
-    elif logfile.lower().endswith('.kif'):
-        fail = False
-        with open(logfile, 'r') as f:
-            movelog.load(mobakif.decoder(f))
-            if len(movelog.data) < 2:
-                fail = True
-        if fail:
-            with open(logfile, 'r') as f:
-                movelog.load(kif.decoder(f))
-        movelog.normalize(position)
-    return position, movelog
 
 def main():
     parser = argparse.ArgumentParser()
@@ -61,20 +29,13 @@ def main():
     ui = tkui.UI(theme)
 
     if args.logfile:
-        position, movelog = load_file(args.sfen, args.logfile)
+        position, movelog = replayer.load_file(args.sfen, args.logfile)
     else:
         movelog = shogi.Movelog()
         position = sfen.decoder(args.sfen)
 
     player = replayer.Replayer(ui, movelog, position)
     player.init()
-
-    def open_file(filename):
-        s = sfen.STARTPOS
-        player.position, player.movelog = load_file(s, filename)
-        player.init()
-
-    ui.menu.command['open_file'] = open_file
 
     ui.run()
 
