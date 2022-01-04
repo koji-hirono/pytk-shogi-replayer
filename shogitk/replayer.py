@@ -9,6 +9,7 @@ import shogitk.mobakif as mobakif
 import shogitk.kif as kif
 import shogitk.ki2 as ki2
 import shogitk.psn as psn
+import shogitk.csa as csa
 
 
 def load_file(s, logfile):
@@ -21,6 +22,10 @@ def load_file(s, logfile):
     elif logfile.lower().endswith('.usi'):
         with open(logfile, 'r') as f:
             movelog.load(usikif.decoder(f))
+            movelog.normalize(position)
+    elif logfile.lower().endswith('.csa'):
+        with open(logfile, 'r') as f:
+            movelog.load(csa.decoder(f))
             movelog.normalize(position)
     elif logfile.lower().endswith('.ki2'):
         with open(logfile, 'r') as f:

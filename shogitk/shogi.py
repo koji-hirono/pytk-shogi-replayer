@@ -238,7 +238,11 @@ class Movelog(object):
             if m.modifier is DROP:
                 position.take_inhand(position.turn, m.piece)
             elif m.src:
-                m.piece = position.take_square(m.src)
+                piece = position.take_square(m.src)
+                if m.piece is not None:
+                    if m.piece[0] == '+' and piece[0] != '+':
+                        m.modifier = PROMOTE
+                m.piece = piece
             else:
                 srclist = list(position.find_src(m.color, m.piece, m.dst))
                 if len(srclist) == 0:
