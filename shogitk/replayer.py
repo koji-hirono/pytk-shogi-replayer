@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import unicode_literals
 from shogitk.shogi import Coords, BLACK, WHITE
 import shogitk.shogi as shogi
 import shogitk.sfen as sfen
@@ -114,28 +115,26 @@ class Replayer(object):
                     if lastmove.src:
                         if lastmove.src.file == file and lastmove.src.rank == rank:
                             self.ui.position.square.set_style(
-                                    self.ui.piece_type['p'],
                                     lastmove.src.rank - 1,
                                     self.position.nfiles - lastmove.src.file)
                     if lastmove.dst:
                         if lastmove.dst.file == file and lastmove.dst.rank == rank:
                             self.ui.position.square.set_style(
-                                    self.ui.piece_type['p'],
                                     lastmove.dst.rank - 1,
                                     self.position.nfiles - lastmove.dst.file,
                                     stipple='gray75')
                 if piece:
-                    self.ui.position.square.put(self.ui.piece_type[piece], row, col)
+                    if piece.isupper():
+                        p = piece
+                        side = 'downside'
+                    else:
+                        p = piece.upper()
+                        side = 'upside'
+                    self.ui.position.square.put(side, p, row, col)
         for color, data in self.position.inhand.items():
             if color == BLACK:
-                inhand = self.ui.position.inhand[1]
+                inhand = self.ui.position.inhand['downside']
             else:
-                inhand = self.ui.position.inhand[0]
+                inhand = self.ui.position.inhand['upside']
             for t, n in data.items():
-                if color == BLACK:
-                    sym = t.upper()
-                else:
-                    sym = t.lower()
-                inhand.clear(self.ui.piece_type[sym])
-                if n != 0:
-                    inhand.put(self.ui.piece_type[sym], n)
+                inhand.put(t.upper(), n)

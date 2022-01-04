@@ -19,22 +19,26 @@
       "K": "玉"
     },
     "image": {
-      "P": "Sfu.png",   "+P": "Sto.png",
-      "L": "Skyo.png",  "+L": "Snkyo.png",
-      "N": "Skei.png",  "+N": "Snkei.png",
-      "S": "Sgin.png",  "+S": "Sngin.png",
-      "G": "Skin.png",
-      "B": "Skaku.png", "+B": "Suma.png",
-      "R": "Shi.png",   "+R": "Sryu.png",
-      "K": "Sou.png",
-      "p": "Gfu.png",   "+p": "Gto.png",
-      "l": "Gkyo.png",  "+l": "Gnkyo.png",
-      "n": "Gkei.png",  "+n": "Gnkei.png",
-      "s": "Ggin.png",  "+s": "Gngin.png",
-      "g": "Gkin.png",
-      "b": "Gkaku.png", "+b": "Guma.png",
-      "r": "Ghi.png",   "+r": "Gryu.png",
-      "k": "Gou.png"
+      "downside": {
+        "P": "Sfu.png",   "+P": "Sto.png",
+        "L": "Skyo.png",  "+L": "Snkyo.png",
+        "N": "Skei.png",  "+N": "Snkei.png",
+        "S": "Sgin.png",  "+S": "Sngin.png",
+        "G": "Skin.png",
+        "B": "Skaku.png", "+B": "Suma.png",
+        "R": "Shi.png",   "+R": "Sryu.png",
+        "K": "Sou.png"
+      },
+      "upside": {
+        "P": "Gfu.png",   "+P": "Gto.png",
+        "L": "Gkyo.png",  "+L": "Gnkyo.png",
+        "N": "Gkei.png",  "+N": "Gnkei.png",
+        "S": "Ggin.png",  "+S": "Gngin.png",
+        "G": "Gkin.png",
+        "B": "Gkaku.png", "+B": "Guma.png",
+        "R": "Ghi.png",   "+R": "Gryu.png",
+        "K": "Gou.png"
+      }
     },
     "promote": "成",
     "drop": "打"

@@ -17,8 +17,9 @@ from PIL import ImageTk
 
 
 class Square(tk.Frame):
-    def __init__(self, parent, theme):
+    def __init__(self, parent, theme, piece_type):
         tk.Frame.__init__(self, parent)
+        self.piece_type = piece_type
         imgpath = os.path.join(theme.dir, 'images')
         self.bg_img = ImageTk.PhotoImage(
                 file=os.path.join(theme.dir, 'images',
@@ -49,8 +50,8 @@ class Square(tk.Frame):
             ay.grid(row=i, column=0, sticky='esnw')
             ay_frame.rowconfigure(i, weight=1)
 
-    def put(self, piece, row, col):
-        img = piece['image']
+    def put(self, side, piece, row, col):
+        img = self.piece_type[side][piece].image
         x = self.padx + img.width() * col
         y = self.pady + img.height() * row
         tag = '{},{}'.format(row, col)
@@ -60,8 +61,8 @@ class Square(tk.Frame):
         tag = '{},{}'.format(row, col)
         self.canvas.delete(tag)
 
-    def set_style(self, piece, row, col, fill='lightblue', stipple='gray50'):
-        img = piece['image']
+    def set_style(self, row, col, fill='lightblue', stipple='gray50'):
+        img = self.piece_type['upside']['P'].image
         x = self.padx + img.width() * col
         y = self.pady + img.height() * row
         tag = '{},{} style'.format(row, col)
@@ -76,45 +77,56 @@ class Square(tk.Frame):
 
 
 class InHand(tk.Frame):
-    def __init__(self, parent, theme):
+    def __init__(self, parent, theme, piece_type):
         tk.Frame.__init__(self, parent)
-        w = 90
-        h = 370
+        anchor='nw'
+        self.image = {}
+        self.count = {}
+        w = 0
+        h = 0
+        for p in piece_type:
+            h += p.image.height()
+            if p.image.width() > w:
+                w = p.image.width()
+        w *= 2
         self.canvas = tk.Canvas(self, width=w, height=h)
-        self.canvas.create_rectangle(0, 0, w, h, fill='#eeeebb')
+        self.back = self.canvas.create_rectangle(0, 0, w, h, fill='#eeeebb')
         self.canvas.grid(row=0, column=0)
+        for i, p in enumerate(piece_type):
+            x = 0
+            y = p.image.height() * i
+            self.image[p.name] = self.canvas.create_image(x, y,
+                    anchor=anchor, image=p.image)
+            x += p.image.width()
+            self.count[p.name] = self.canvas.create_text(x, y,
+                    anchor=anchor, font=('', 16), text=str(0))
+            self.canvas.tag_lower(self.count[p.name], self.back)
+            self.canvas.tag_lower(self.image[p.name], self.back)
 
     def put(self, piece, n):
-        P_W = {
-            'R': 0, 'B': 1, 'G': 2, 'S': 3, 'N': 4, 'L': 5, 'P': 6,
-            'r': 6, 'b': 5, 'g': 4, 's': 3, 'n': 2, 'l': 1, 'p': 0
-        }
-        if piece['name'] not in P_W:
+        if piece not in self.image:
             return
-        img = piece['image']
-        x = 5
-        y = (img.height() + 0) * P_W[piece['name']]
-        tag = '{}'.format(piece['name'])
-        self.canvas.create_image(x, y, tag=tag, anchor='nw', image=img)
-        x += img.width() + 5
-        tag = '{} count'.format(piece['name'])
-        self.canvas.create_text(x, y, tag=tag, anchor='nw', font=('', 16),
-                text=str(n))
-
-    def clear(self, piece):
-        tag = '{}'.format(piece['name'])
-        self.canvas.delete(tag)
-        tag = '{} count'.format(piece['name'])
-        self.canvas.delete(tag)
+        self.canvas.itemconfigure(self.count[piece], text=str(n))
+        if n > 0:
+            self.canvas.tag_raise(self.count[piece], self.back)
+            self.canvas.tag_raise(self.image[piece], self.back)
+        else:
+            self.canvas.tag_lower(self.count[piece], self.back)
+            self.canvas.tag_lower(self.image[piece], self.back)
 
 class Position(tk.Frame):
-    def __init__(self, parent, theme):
+    def __init__(self, parent, theme, piece_type):
         tk.Frame.__init__(self, parent)
-        self.square = Square(self, theme)
-        self.inhand = [InHand(self, theme), InHand(self, theme)]
-        self.inhand[0].grid(row=0, column=0, padx=5, pady=5, sticky='n')
+        self.square = Square(self, theme, piece_type)
+        self.inhand = {
+            'upside':InHand(self, theme,
+                [piece_type['upside'][p] for p in reversed('RBGSNLP')]),
+            'downside':InHand(self, theme,
+                [piece_type['downside'][p] for p in 'RBGSNLP'])
+        }
+        self.inhand['upside'].grid(row=0, column=0, padx=5, pady=5, sticky='n')
         self.square.grid(row=0, column=1, padx=5, pady=5, sticky='ns')
-        self.inhand[1].grid(row=0, column=2, padx=5, pady=5, sticky='s')
+        self.inhand['downside'].grid(row=0, column=2, padx=5, pady=5, sticky='s')
 
 def move_format(m, theme):
     if theme.config['move']['style'] == 'western':
@@ -224,18 +236,22 @@ class Menu(tk.Menu):
             if 'open_file' in self.command:
                 self.command['open_file'](filename)
 
+class PieceType(object):
+    def __init__(self, name, image):
+        self.name = name
+        self.image = image
+
 class UI(object):
     def __init__(self, theme):
         self.root = tk.Tk()
         self.root.title('shogi')
         self.piece_type = {}
-        for name, file in theme.config['piece']['image'].items():
-            self.piece_type[name] = {
-                'name': name,
-                'image': ImageTk.PhotoImage(
-                    file=os.path.join(theme.dir, 'images', file))
-            }
-        self.position = Position(self.root, theme)
+        for side, piece in theme.config['piece']['image'].items():
+            self.piece_type[side] = {}
+            for name, file in piece.items():
+                self.piece_type[side][name] = PieceType(name, ImageTk.PhotoImage(
+                        file=os.path.join(theme.dir, 'images', file)))
+        self.position = Position(self.root, theme, self.piece_type)
         self.movelog = Movelog(self.root, theme)
         self.control = Control(self.root, theme)
         self.position.grid(row=0, column=0)
